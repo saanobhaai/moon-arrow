@@ -89,7 +89,7 @@ ArrowMover.prototype.moveToAzimuth = function(
 };
 
 
-board.on("ready", function() {
+trackMoon = function() {
   var servo_azimuth = new five.Servo.Continuous(config.PIN_AZIMUTH);
   var servo_altitude = new five.Servo.Continuous(config.PIN_ALTITUDE);
   var arrowMover = new ArrowMover(servo_azimuth, servo_altitude);
@@ -112,5 +112,19 @@ board.on("ready", function() {
       console.log('Arrow in motion; skipping this movement.');
     }
   });
+};
 
+testFullCircle = function (direction) {
+  var servo_azimuth = new five.Servo.Continuous(config.PIN_AZIMUTH);
+  var servo_altitude = new five.Servo.Continuous(config.PIN_ALTITUDE);
+  var arrowMover = new ArrowMover(servo_azimuth, servo_altitude);
+
+  arrowMover.moveDegrees('azimuth', 360, direction, config.SPEED);
+};
+
+
+board.on("ready", function() {
+  testFullCircle(true);  // CW
+  // testFullCircle(false);  // CCW
 });
+// board.on("ready", trackMoon);
