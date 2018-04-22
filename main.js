@@ -43,7 +43,6 @@ ArrowMover.prototype.on('done:altitude', function() {
   var self = this;
   self.degrees_altitude = self.degrees_altitude_target;
   self.moving_altitude = false;
-  console.log('altitude moving done');
 });
 
 
