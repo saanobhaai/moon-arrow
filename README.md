@@ -2,24 +2,27 @@
 Code for johnny-five control of azimuth and altitude servos for moving moon arrow on a schedule
 
 ## Installation
-- Hardware: Arduino Uno, continuous servo, cables
+- Hardware: Arduino Uno, 2 continuous servos, jumper cables
+- On Pi3:
+  - Install ssh/VNC: https://www.hackster.io/IainIsCreative/setting-up-the-raspberry-pi-and-johnny-five-56d60f
+  - `curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -`
+  - `sudo apt-get upgrade`
+  - `sudo apt-get install -y nodejs`
 - On Windows: 
   - Install WSL https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/
   - Install Arduino IDE https://www.arduino.cc/en/Main/Software (Windows installer)
-- Clone this repository, using GUI or commandline: `git clone https://github.com/saanobhaai/moon-arrow.git 
-/path/to/repos`
+- Clone this repository, using GUI or commandline: `git clone https://github.com/saanobhaai/moon-arrow.git /path/to/repos/moon-arrow/`
 - In WSL or from linux:
   ```
-  cd /path/to/repo/
   sudo npm install johnny-five
   sudo npm install node-schedule
   sudo npm install suncalc
   ```
 
 ## Configuration
-- Attach azimuth servo to desired pin with 5V power and ground also connected
+- Attach azimuth and altitude servos to desired pins with 5V power and ground also connected
 - Plug in Arduino to USB port
-- Determine port. On a Pi this should I think be `/dev/serial0` but may need to do some research depending on 
+- Determine port. On a Pi3 this should be `/dev/ttyACM0` but may need to do some research depending on 
 model/environment.  
 On Windows: 
   - Open Windows Device Manager, note COM port number used by Arduino
