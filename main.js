@@ -188,7 +188,7 @@ testFullCircle = function (direction) {
   var arrowMover = new ArrowMover(servo_azimuth, servo_altitude);
 
   // arrowMover.moveDegrees('azimuth', 360, direction, config.MAXSPEED_AZIMUTH);
-  arrowMover.moveDegrees('altitude', 10, direction, config.SPEED_ALTITUDE);
+  arrowMover.moveDegrees('altitude', 360, direction, config.SPEED_ALTITUDE);
   // setTimeout(function() {
   //   arrowMover.moveDegrees('altitude', 20, direction, 0.06, config.DEGREES2SECONDS_ALTITUDE);
   // }, 1000);
@@ -199,8 +199,8 @@ testFullCircle = function (direction) {
 };
 
 
-//board.on("ready", function() {
-//  testFullCircle(true);
-//});
+// board.on("ready", function() {
+//   testFullCircle(true);
+// });
 
 board.on("ready", trackMoon);
