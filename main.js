@@ -55,9 +55,11 @@ ArrowMover.prototype.moveDegrees = function(
 ) {
   var self = this;
   var servo = (type === 'azimuth') ? self.servo_azimuth : self.servo_altitude;
-  var multiplier = config.DEGREES2SECONDS_AZIMUTH;
+  var multiplier = config.DEGREES2SECONDS_AZIMUTH_CW;
   if (type === 'altitude') {
     multiplier = (direction === true) ? config.DEGREES2SECONDS_ALTITUDE_CW : config.DEGREES2SECONDS_ALTITUDE_CCW;
+  } else if (type === 'azimuth') {
+    multiplier = (direction === true) ? config.DEGREES2SECONDS_AZIMUTH_CW : config.DEGREES2SECONDS_AZIMUTH_CCW;
   }
   console.log('multiplier: ' + multiplier);
 
@@ -156,7 +158,7 @@ trackMoon = function() {
 
   var j = schedule.scheduleJob(config.SCHEDULE, function() {
     var moonPos = suncalc.getMoonPosition(new Date(), config.LAT, config.LON);
-    var moon_azimuth = radians2Degrees(moonPos['azimuth']);
+    var moon_azimuth = 180 + radians2Degrees(moonPos['azimuth']);
     var moon_altitude = radians2Degrees(moonPos['altitude']);
     console.log('----- ' + new Date() + ' -----');
     console.log('moon_azimuth: ' + moon_azimuth);
@@ -186,7 +188,7 @@ testFullCircle = function (direction) {
   var arrowMover = new ArrowMover(servo_azimuth, servo_altitude);
 
   // arrowMover.moveDegrees('azimuth', 360, direction, config.MAXSPEED_AZIMUTH);
-  arrowMover.moveDegrees('altitude', 360, direction, config.SPEED_ALTITUDE);
+  arrowMover.moveDegrees('altitude', 10, direction, config.SPEED_ALTITUDE);
   // setTimeout(function() {
   //   arrowMover.moveDegrees('altitude', 20, direction, 0.06, config.DEGREES2SECONDS_ALTITUDE);
   // }, 1000);
@@ -197,8 +199,8 @@ testFullCircle = function (direction) {
 };
 
 
-// board.on("ready", function() {
-//   testFullCircle(true);
-// });
+//board.on("ready", function() {
+//  testFullCircle(true);
+//});
 
 board.on("ready", trackMoon);
