@@ -5,6 +5,10 @@ var five = require("johnny-five");  // http://johnny-five.io/
 const util = require('util');
 const config = require('./config');
 
+var servo_azimuth;
+var servo_altitude;
+var arrowMover;
+
 console.info("Initializing port...");
 // var board = new five.Board();
 var board = new five.Board({
@@ -56,17 +60,20 @@ ArrowMover.prototype.moveDegrees = function(
   var self = this;
   var servo = (type === 'azimuth') ? self.servo_azimuth : self.servo_altitude;
   var multiplier = config.DEGREES2SECONDS_AZIMUTH_CW;
+  var threshold = config.MOVEMENT_THRESHOLD_AZI;
   if (type === 'altitude') {
     multiplier = (direction === true) ? config.DEGREES2SECONDS_ALTITUDE_CW : config.DEGREES2SECONDS_ALTITUDE_CCW;
+    threshold = config.MOVEMENT_THRESHOLD_ALT;
   } else if (type === 'azimuth') {
     multiplier = (direction === true) ? config.DEGREES2SECONDS_AZIMUTH_CW : config.DEGREES2SECONDS_AZIMUTH_CCW;
+    threshold = config.MOVEMENT_THRESHOLD_AZI;
   }
   console.log('multiplier: ' + multiplier);
 
   var seconds = degrees * multiplier * (1 / speed);
-  if (seconds < config.MOVEMENT_THRESHOLD) {
+  if (seconds < threshold) {
     console.log('Not moving ' + type + ' because required ' + seconds + ' seconds is less than ' +
-      config.MOVEMENT_THRESHOLD);
+      threshold);
     if (type === 'altitude') {
       self.moving_altitude = false;
     } else {
@@ -112,9 +119,9 @@ ArrowMover.prototype.moveToAzimuth = function(
     direction = !direction;
   }
 
-  console.log('degreesToMove: ' + degreesToMove);
-  console.log('direction: ' + direction);
-  console.log('speed: ' + speed);
+  console.log('azi degreesToMove: ' + degreesToMove);
+  console.log('azi direction: ' + direction);
+  console.log('azi speed: ' + speed);
   self.moving_azimuth = true;
   self.degrees_azimuth_target = degrees;
   self.moveDegrees('azimuth', degreesToMove, direction, speed);
@@ -134,9 +141,9 @@ ArrowMover.prototype.moveToAltitude = function(
   var direction = true;
   if (degrees - self.degrees_altitude < 0) direction = false;
 
-  console.log('degreesToMove: ' + degreesToMove);
-  console.log('direction: ' + direction);
-  console.log('speed: ' + speed);
+  console.log('alt degreesToMove: ' + degreesToMove);
+  console.log('alt direction: ' + direction);
+  console.log('alt speed: ' + speed);
   self.moving_altitude = true;
   self.degrees_altitude_target = degrees;
   self.moveDegrees('altitude', degreesToMove, direction, speed);
@@ -144,15 +151,6 @@ ArrowMover.prototype.moveToAltitude = function(
 
 
 trackMoon = function() {
-  var servo_azimuth = new five.Servo.Continuous({
-    pin: config.PIN_AZIMUTH,
-    deadband: config.DEADBAND_AZIMUTH
-  });
-  var servo_altitude = new five.Servo.Continuous({
-    pin: config.PIN_ALTITUDE,
-    deadband: config.DEADBAND_ALTITUDE
-  });
-  var arrowMover = new ArrowMover(servo_azimuth, servo_altitude);
   var first_run = true;
   var speed_alt = config.SPEED_ALTITUDE;
 
@@ -177,18 +175,7 @@ trackMoon = function() {
 };
 
 testFullCircle = function (direction) {
-  var servo_azimuth = new five.Servo.Continuous({
-    pin: config.PIN_AZIMUTH,
-    deadband: config.DEADBAND_AZIMUTH
-  });
-  var servo_altitude = new five.Servo.Continuous({
-    pin: config.PIN_ALTITUDE,
-    deadband: config.DEADBAND_ALTITUDE
-  });
-  var arrowMover = new ArrowMover(servo_azimuth, servo_altitude);
-
-  // arrowMover.moveDegrees('azimuth', 360, direction, config.MAXSPEED_AZIMUTH);
-  arrowMover.moveDegrees('altitude', 360, direction, config.SPEED_ALTITUDE);
+  arrowMover.moveDegrees('azimuth', 360, direction, config.SPEED_AZIMUTH);
   // setTimeout(function() {
   //   arrowMover.moveDegrees('altitude', 20, direction, 0.06, config.DEGREES2SECONDS_ALTITUDE);
   // }, 1000);
@@ -198,9 +185,51 @@ testFullCircle = function (direction) {
   // console.log('deadband: ' + servo_azimuth.deadband);
 };
 
+nudge = function (axis, degrees, direction) {
+  arrowMover.moveDegrees(axis, degrees, direction, config.SPEED_AZIMUTH);
+};
 
-// board.on("ready", function() {
-//   testFullCircle(true);
-// });
+board.on("ready", function() {
+  servo_azimuth = new five.Servo.Continuous({
+    pin: config.PIN_AZIMUTH,
+    deadband: config.DEADBAND_AZIMUTH
+  });
+  servo_altitude = new five.Servo.Continuous({
+    pin: config.PIN_ALTITUDE,
+    deadband: config.DEADBAND_ALTITUDE
+  });
+  arrowMover = new ArrowMover(servo_azimuth, servo_altitude);
+  trackMoon();
+//  testFullCircle(true);
 
-board.on("ready", trackMoon);
+  process.stdin.resume();
+  process.stdin.setEncoding("utf8");
+  process.stdin.setRawMode(true);
+
+  process.stdin.on("keypress", function(ch, key) {
+    if (!key) {
+      return;
+    }
+
+    if (key.name === "q") {
+      console.log("Quitting");
+      process.exit();
+    } else if (key.name === "up") {
+      console.log("alt CW");
+      nudge('altitude', 4, true);
+    } else if (key.name === "down") {
+      console.log("alt CCW");
+      nudge('altitude', 4.2, false);
+    } else if (key.name === "left") {
+      console.log("azi CCW");
+      nudge('azimuth', 4, false);
+    } else if (key.name === "right") {
+      console.log("azi CW");
+      nudge('azimuth', 4, true);
+    } else if (key.name === "space") {
+      console.log("Stopping");
+      servo_azimuth.stop();
+      servo_altitude.stop();
+    }
+  });
+});

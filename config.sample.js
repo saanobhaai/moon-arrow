@@ -1,8 +1,9 @@
 var config = {};
 
-config.MOVEMENT_THRESHOLD = 1;  // under this # of seconds, don't move
+config.MOVEMENT_THRESHOLD_AZI = 0.4;  // under this # of seconds, don't move
+config.MOVEMENT_THRESHOLD_ALT = 0.2;
 
-config.DEGREES2SECONDS_AZIMUTH_CW = 0.0936;  // multiplier to convert degrees to seconds of continuous servo motion
+config.DEGREES2SECONDS_AZIMUTH_CW = 0.094;  // 0.0936;  // multiplier to convert degrees to seconds of continuous servo motion
 config.DEGREES2SECONDS_AZIMUTH_CCW = 0.0753;
 config.MAXSPEED_AZIMUTH = 0.75;  // maximum possible
 config.SPEED_AZIMUTH = 0.2;
@@ -21,8 +22,14 @@ config.PIN_ALTITUDE = 9;
 // also https://crontab.guru/every-5-minutes
 // config.SCHEDULE = '*/5 * * * *';  // 5 minutes
 config.SCHEDULE = '*/1 * * * *';  // 1 minute
+
+// B6
 config.LAT = 40.760062;
 config.LON = -73.928431;
+// Flight 587 Memorial Park
+//config.LAT = 40.577403;
+//config.LON = -73.8363502;
+
 config.START_AZIMUTH = 0;
 config.START_ALTITUDE = 0;
 
